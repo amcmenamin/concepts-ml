@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 clay-trial/data
+clay-trial/clay-v1.5.ckpt
 
 # Distribution / packaging
 .Python
