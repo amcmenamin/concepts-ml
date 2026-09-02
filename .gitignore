@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+clay-trial/data
+
 # Distribution / packaging
 .Python
 build/
