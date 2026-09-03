@@ -194,12 +194,35 @@ linz:
     - red
     - green
     - blue
-    - nir
   rgb_indices:
     - 0
     - 1
     - 2
   gsd: 0.5
+  bands:
+    mean:
+      red: 89.96
+      green: 99.46
+      blue: 89.51
+    std:
+      red: 41.83
+      green: 36.96
+      blue: 31.45
+    wavelength:
+      red: 0.635
+      green: 0.555
+      blue: 0.465
+linz-nir:
+  band_order:
+    - red
+    - green
+    - blue
+    - nir
+  rgb_indices:
+    - 0
+    - 1
+    - 2
+  gsd: 0.25
   bands:
     mean:
       red: 89.96

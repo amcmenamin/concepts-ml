@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Model checkpoints
+*.ckpt
+
 clay-trial/data
 clay-trial/clay-v1.5.ckpt
 

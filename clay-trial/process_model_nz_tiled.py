@@ -9,9 +9,13 @@ from pathlib import Path
 # Global tile configuration
 #TILE_NAME = "AY30_1000_4448.tiff"
 #TILE_NAME = "BA31_1000_4047.tiff"
-TILE_NAME = "BA31_1000_4048.tiff"
+#TILE_NAME = "BA31_1000_4048.tiff"
+TILE_NAME = "BA31_10000_0405.tiff"
 
-def process_tile(model, pixels, lat, lon, gsd, waves, platform, device):
+# Embedding mode: "cls" for CLS token (coarse), "patches" for all patches (fine)
+EMBEDDING_MODE = "patches"  # or "cls"
+
+def process_tile(model, pixels, lat, lon, gsd, waves, platform, device, mode="patches"):
     """Process a single 256x256 tile through the model."""
     # Normalize timestamp for single image (no temporal dimension)
     week = 1 * 2 * np.pi / 52  # Default week 1
@@ -34,12 +38,17 @@ def process_tile(model, pixels, lat, lon, gsd, waves, platform, device):
     
     with torch.no_grad():
         unmsk_patch, _, _, _ = model.model.encoder(datacube)
-        embedding = unmsk_patch[:, 0, :].cpu().numpy()
+        if mode == "cls":
+            # CLS token only (global summary)
+            embeddings = unmsk_patch[:, 0:1, :].cpu().numpy()  # (1, 1, 1024)
+        else:
+            # All patch embeddings (skip CLS token)
+            embeddings = unmsk_patch[:, 1:, :].cpu().numpy()  # (1, 256, 1024)
     
     del datacube, unmsk_patch
     torch.cuda.empty_cache()
     
-    return embedding
+    return embeddings
 
 # Load model
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -62,8 +71,8 @@ print(f"Model loaded on {device}")
 from box import Box
 import yaml
 metadata = Box(yaml.safe_load(open("configs/metadata.yaml")))
-platform = "linz"
-band_names = ['red', 'green', 'blue']
+platform = "linz-nir"
+band_names = ['red', 'green', 'blue', 'nir']
 mean = [metadata[platform].bands.mean[band] for band in band_names]
 std = [metadata[platform].bands.std[band] for band in band_names]
 waves = [metadata[platform].bands.wavelength[band] for band in band_names]
@@ -87,8 +96,10 @@ with rasterio.open(tif_path) as src:
     print(f"Processing {n_tiles_x}x{n_tiles_y} = {n_tiles_x * n_tiles_y} tiles")
     
     # Prepare output arrays
-    embedding_dim = None  # Will be determined from first tile
+    embedding_dim = None
+    patches_per_tile = None  # Will be determined from first tile
     embeddings_map = None
+    print(f"Embedding mode: {EMBEDDING_MODE}")
     
     # Process each tile
     tile_count = 0
@@ -98,9 +109,9 @@ with rasterio.open(tif_path) as src:
             if tile_count % 10 == 0:
                 print(f"Processing tile {tile_count}/{n_tiles_x * n_tiles_y}")
             
-            # Read tile (only first 3 bands: RGB)
+            # Read tile (4 bands: RGB + NIR)
             window = Window(tx * tile_size, ty * tile_size, tile_size, tile_size)
-            tile_data = src.read([1, 2, 3], window=window).astype(np.float32)
+            tile_data = src.read([1, 2, 3, 4], window=window).astype(np.float32)
             
             # Normalize
             tile_tensor = torch.from_numpy(tile_data)
@@ -113,26 +124,40 @@ with rasterio.open(tif_path) as src:
             lon, lat = src.xy(center_y, center_x)
             
             # Process tile
-            embedding = process_tile(model, tile_tensor, lat, lon, gsd, waves, platform, device)
+            embeddings = process_tile(model, tile_tensor, lat, lon, gsd, waves, platform, device, EMBEDDING_MODE)
             
             # Initialize embeddings_map on first tile
             if embeddings_map is None:
-                embedding_dim = embedding.shape[1]
-                embeddings_map = np.zeros((n_tiles_y, n_tiles_x, embedding_dim), dtype=np.float32)
+                embedding_dim = embeddings.shape[2]
+                if EMBEDDING_MODE == "cls":
+                    patches_per_tile = 1
+                else:
+                    n_patches = embeddings.shape[1]
+                    patches_per_tile = int(n_patches ** 0.5)
+                embeddings_map = np.zeros((n_tiles_y * patches_per_tile, n_tiles_x * patches_per_tile, embedding_dim), dtype=np.float32)
                 print(f"Embedding dimension: {embedding_dim}")
+                print(f"Patches per tile: {patches_per_tile}x{patches_per_tile}")
+                print(f"Output resolution: {n_tiles_y * patches_per_tile} x {n_tiles_x * patches_per_tile} patches")
             
-            embeddings_map[ty, tx] = embedding[0]
+            # Reshape and place in output
+            if EMBEDDING_MODE == "cls":
+                embeddings_map[ty, tx] = embeddings[0, 0]
+            else:
+                patches_2d = embeddings[0].reshape(patches_per_tile, patches_per_tile, embedding_dim)
+                embeddings_map[ty*patches_per_tile:(ty+1)*patches_per_tile, 
+                              tx*patches_per_tile:(tx+1)*patches_per_tile] = patches_2d
             
             gc.collect()
     
     # Save embeddings as GeoTIFF - prepare profile before closing src
     output_profile = src.profile.copy()
+    pixel_scale = tile_size // patches_per_tile if EMBEDDING_MODE == "patches" else tile_size
     output_profile.update({
         'count': embedding_dim,
         'dtype': 'float32',
-        'width': n_tiles_x,
-        'height': n_tiles_y,
-        'transform': src.transform * src.transform.scale(tile_size, tile_size)
+        'width': n_tiles_x * patches_per_tile,
+        'height': n_tiles_y * patches_per_tile,
+        'transform': src.transform * src.transform.scale(pixel_scale, pixel_scale)
     })
 
 print(f"All tiles processed. Embeddings shape: {embeddings_map.shape}")

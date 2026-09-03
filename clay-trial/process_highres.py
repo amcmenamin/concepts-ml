@@ -50,8 +50,8 @@ print(f"Model loaded on {device}")
 from box import Box
 import yaml
 metadata = Box(yaml.safe_load(open("configs/metadata.yaml")))
-platform = "linz"
-band_names = ['red', 'green', 'blue']
+platform = "linz-nir"
+band_names = ['red', 'green', 'blue', 'nir']
 mean = [metadata[platform].bands.mean[band] for band in band_names]
 std = [metadata[platform].bands.std[band] for band in band_names]
 waves = [metadata[platform].bands.wavelength[band] for band in band_names]
