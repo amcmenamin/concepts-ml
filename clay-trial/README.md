@@ -1,3 +1,45 @@
+# Clay Embedding Trial
 
-Install Dependencies
-uv pip install git+https://github.com/Clay-foundation/model.git    
+This folder contains an exploratory workflow for generating and analysing geospatial embeddings with the Clay foundation model. It expects imagery and derived outputs under `data/`, configuration in `configs/metadata.yaml`, and a Clay checkpoint named `clay-v1.5.ckpt` available to the processing scripts.
+
+## Install
+
+From the repository root, install dependencies with:
+
+```powershell
+uv sync
+```
+
+The project declares the Clay model package from its Git repository. Download or otherwise provide the model checkpoint separately before running processing.
+
+## Workflow
+
+1. Prepare imagery with `prep_imagery_nz.py` or the scripts under `sample_fire_clay/`.
+2. Set the source tile and embedding mode in `process_model_nz_tiled.py`.
+3. Run the processor from this directory so its relative paths resolve:
+
+```powershell
+Set-Location .\clay-trial
+..\.venv\Scripts\python.exe .\process_model_nz_tiled.py
+```
+
+`EMBEDDING_MODE = "patches"` writes spatially detailed patch embeddings; `"cls"` writes one embedding per 256-pixel source tile. The output is a multi-band GeoTIFF, normally `data/<tile-name>/embeddings_tiled.tif`.
+
+`process_highres.py` is a related processor for high-resolution imagery.
+
+## Analysis
+
+Use `analyse_run.py` to run one analysis or all of them against an embedding GeoTIFF:
+
+```powershell
+..\.venv\Scripts\python.exe .\analyse_run.py --path .\data\<tile-name>\embeddings_tiled.tif --analysis all
+```
+
+Supported analyses are:
+
+- `cluster`: KMeans clustering through `analyse_cluster_viz.py`.
+- `similarity`: embedding similarity search through `analyse_similarity_search.py`.
+- `umap`: low-dimensional UMAP visualisation through `analyse_umap_viz.py`.
+- `pca`: principal-component visualisation through `analyse_visualize_pca.py`.
+
+For similarity search, supply `--ref-row` and `--ref-col` to choose a reference embedding location. `viz_example.py` provides feature-map visualisation for selected embedding dimensions.

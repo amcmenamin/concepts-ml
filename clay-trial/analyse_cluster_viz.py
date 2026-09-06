@@ -6,24 +6,24 @@ from pathlib import Path
 
 
 class ClusterAnalyzer:
-    def __init__(self, tile_name, n_clusters=20):
-        self.tile_name = tile_name
-        self.tile_dir = Path("data") / Path(tile_name).stem
+    def __init__(self, embedding_path, n_clusters=20):
+        self.embedding_path = Path(embedding_path)
+        self.output_dir = self.embedding_path.parent
         self.n_clusters = n_clusters
     
     def run(self):
-        with rasterio.open(self.tile_dir / "embeddings_tiled.tif") as src:
+        with rasterio.open(self.embedding_path) as src:
             embeddings = src.read()
             profile = src.profile
         
         h, w = embeddings.shape[1], embeddings.shape[2]
-        embeddings_flat = embeddings.reshape(1024, -1).T
+        embeddings_flat = embeddings.reshape(embeddings.shape[0], -1).T
         
         clusters = KMeans(n_clusters=self.n_clusters).fit_predict(embeddings_flat)
         cluster_map = clusters.reshape(h, w)
         
         profile.update(count=1, dtype='uint8')
-        with rasterio.open(self.tile_dir / "clusters.tif", "w", **profile) as dst:
+        with rasterio.open(self.output_dir / "clusters.tif", "w", **profile) as dst:
             dst.write(cluster_map.astype(np.uint8), 1)
         
         plt.figure(figsize=(10, 10))
@@ -31,7 +31,7 @@ class ClusterAnalyzer:
         plt.colorbar(label='Cluster ID')
         plt.title(f"KMeans Clustering (k={self.n_clusters})")
         plt.axis('off')
-        plt.savefig(self.tile_dir / "clusters.png", dpi=150, bbox_inches='tight')
+        plt.savefig(self.output_dir / "clusters.png", dpi=150, bbox_inches='tight')
         plt.close()
         
-        print(f"Saved: {self.tile_dir / 'clusters.tif'} and {self.tile_dir / 'clusters.png'}")
+        print(f"Saved: {self.output_dir / 'clusters.tif'} and {self.output_dir / 'clusters.png'}")
