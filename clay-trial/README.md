@@ -43,3 +43,21 @@ Supported analyses are:
 - `pca`: principal-component visualisation through `analyse_visualize_pca.py`.
 
 For similarity search, supply `--ref-row` and `--ref-col` to choose a reference embedding location. `viz_example.py` provides feature-map visualisation for selected embedding dimensions.
+
+## Visualizing embedding feature maps
+
+`viz_example.py` reads a multi-band GeoTIFF and saves a grid of PNGs for each selected embedding dimension. Dimensions are zero-based, so dimension `0` is the first band in the file.
+
+Example command from the repository root using the specific TIFF you provided:
+
+```powershell
+.\.venv\Scripts\python.exe .\clay-trial\viz_example.py "C:\Data\AEF\wanaka\2024\d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --dimensions 0,1,2,3,4 --output-dir "C:\Data\AEF\wanaka\2024\viz"
+```
+
+This plots the first five embedding bands into one or more PNG pages. If you want every Nth band instead of an explicit list, use `--step`:
+
+```powershell
+.\.venv\Scripts\python.exe .\clay-trial\viz_example.py "C:\Data\AEF\wanaka\2024\d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --step 10 --output-dir "C:\Data\AEF\wanaka\2024\viz"
+```
+
+The script writes the PNGs beside the input TIFF by default, or to the directory passed via `--output-dir`.
