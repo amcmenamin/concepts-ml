@@ -189,7 +189,7 @@ naip:
       green: 0.56
       blue: 0.48
       nir: 0.842
-linz:
+linz-rgb:
   band_order:
     - red
     - green
