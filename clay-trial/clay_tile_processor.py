@@ -11,7 +11,7 @@ import yaml
 
 class ClayTileProcessor:
     def __init__(self, checkpoint_path="clay-v1.5.ckpt", metadata_path="configs/metadata.yaml", 
-                 tile_size=256, embedding_mode="patches"):
+                 tile_size=256, embedding_mode="cls"):
         self.tile_size = tile_size
         self.embedding_mode = embedding_mode
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -170,7 +170,7 @@ class ClayTileProcessor:
         
         print(f"All tiles processed. Embeddings shape: {embeddings_map.shape}")
         
-        output_path = output_dir / "embeddings_tiled.tif"
+        output_path = output_dir / ("embeddings_" + self.embedding_mode + ".tiff")
         with rasterio.open(output_path, "w", **output_profile) as dst:
             for i in range(embedding_dim):
                 dst.write(embeddings_map[:, :, i], i + 1)

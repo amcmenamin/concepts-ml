@@ -14,7 +14,9 @@ processor = ClayTileProcessor(embedding_mode="cls")
 # patches create embeddings for all patches within each tile - larger file output
 # processor = ClayTileProcessor(embedding_mode="patches")
 
+output_dir = Path("data/nz_imagery_output")
+output_dir.mkdir(parents=True, exist_ok=True)
 for img in images:
-    processor.process_image(img)
+    processor.process_image(img, output_dir=output_dir)
 
 print("\nAll images processed!")
