@@ -1,7 +1,7 @@
 [project]
-name = "clay-trial"
+name = "concepts-ml"
 version = "0.1.0"
-description = "Add your description here"
+description = "Approaches to working with Geospatial foundation models"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -9,6 +9,7 @@ dependencies = [
 	"geopandas",
 	"matplotlib",
 	"numpy<2",
+	"obstore>=0.9.4",
 	"pandas<3",
 	"pystac-client",
 	"PyYAML",
