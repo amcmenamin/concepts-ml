@@ -34,7 +34,7 @@ def process_tile(model, pixels, lat, lon, gsd, waves, platform, device, mode="pa
         "waves": torch.tensor(waves, dtype=torch.float32, device=device),
     }
     
-    print(f"datacube: {datacube}")
+    #print(f"datacube: {datacube}")
     
     with torch.no_grad():
         unmsk_patch, _, _, _ = model.model.encoder(datacube)
