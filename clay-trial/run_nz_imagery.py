@@ -8,7 +8,11 @@ images = [
     "data/nz_imagery/BQ32_500_021002_0.3m.tiff",
 ]
 
-processor = ClayTileProcessor(embedding_mode="patches")
+# cls create single value per tile (global summary) - small file output
+processor = ClayTileProcessor(embedding_mode="cls")
+
+# patches create embeddings for all patches within each tile - larger file output
+# processor = ClayTileProcessor(embedding_mode="patches")
 
 for img in images:
     processor.process_image(img)

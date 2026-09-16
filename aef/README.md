@@ -45,6 +45,43 @@ Useful options:
 Use `--earlier`, `--later`, and `--output-directory` to override the default
 paths.
 
+### Python API
+
+Use `CosineChangeDetector` directly when change detection is part of another
+Python workflow:
+
+```python
+from pathlib import Path
+
+from locate_changes_cosine import CosineChangeDetector
+
+
+detector = CosineChangeDetector(
+  earlier_path=Path(r"C:\Data\AEF\wanaka\2019\earlier.tiff"),
+  later_path=Path(r"C:\Data\AEF\wanaka\2024\later.tiff"),
+  output_directory=Path(r"C:\Data\AEF\wanaka\change_detection\2019_to_2024"),
+  percentile=95.0,
+  block_size=512,
+)
+score_path, mask_path, threshold, score_percentiles = detector.run()
+```
+
+The constructor validates the percentile and block size. `run()` validates that
+the rasters have matching bands and grids before writing the score and mask.
+
+### Batch Runner
+
+Edit the `CHANGES` list in `run_locate_changes_cosine.py` to configure one or
+more comparisons, then run:
+
+```powershell
+uv run python aef/run_locate_changes_cosine.py
+```
+
+Each list entry contains `earlier`, `later`, `output_directory`, `percentile`,
+and `block_size`. Use a unique output directory for each comparison to avoid
+overwriting `cosine_change_score.tif` and `change_mask.tif`.
+
 ## kNN Novelty Trial
 
 `locate_changes_knn_novelty.py` is an experimental alternative. It randomly

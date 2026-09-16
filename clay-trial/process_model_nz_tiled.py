@@ -13,7 +13,7 @@ from pathlib import Path
 TILE_NAME = "BA31_10000_0405.tiff"
 
 # Embedding mode: "cls" for CLS token (coarse), "patches" for all patches (fine)
-EMBEDDING_MODE = "patches"  # or "cls"
+EMBEDDING_MODE = "cls"  # "patches" or "cls"
 
 def process_tile(model, pixels, lat, lon, gsd, waves, platform, device, mode="patches"):
     """Process a single 256x256 tile through the model."""
