@@ -2,6 +2,8 @@
 
 This folder contains an exploratory workflow for generating and analysing geospatial embeddings with the Clay foundation model. It expects imagery and derived outputs under `data/`, configuration in `configs/metadata.yaml`, and a Clay checkpoint named `clay-v1.5.ckpt` available to the processing scripts.
 
+https://clay-foundation.github.io/model/index.html
+
 ## Install
 
 From the repository root, install dependencies with:
