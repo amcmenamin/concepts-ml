@@ -33,11 +33,13 @@ processor = ClayTileProcessor(embedding_mode="cls")
 # processor = ClayTileProcessor(embedding_mode="patches")
 
 # Choose which dataset to process
-IMAGES_TO_PROCESS = images_2021  # Change to images_2021 or images_2025 as needed
+IMAGES_TO_PROCESS = images_2025  # Change to images_2021 or images_2025 as needed
 
-output_dir = Path("data/nz_imagery_output")
-output_dir.mkdir(parents=True, exist_ok=True)
-for img in IMAGES_TO_PROCESS:
-    processor.process_image(img, output_dir=output_dir)
+for img_path in IMAGES_TO_PROCESS:
+    img = Path(img_path)
+    # Create output dir: data/nz_imagery_embeddings/hutt-city_2021_0.075m/BQ32_500_027025_0.3m/
+    output_dir = Path("data/nz_imagery_embeddings") / img.parent.name / img.stem
+    output_dir.mkdir(parents=True, exist_ok=True)
+    processor.process_image(img_path, output_dir=output_dir)
 
 print(f"\nAll {len(IMAGES_TO_PROCESS)} images processed!")
