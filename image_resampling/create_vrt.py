@@ -8,11 +8,10 @@ from __future__ import annotations
 
 import argparse
 import logging
-import subprocess
-import tempfile
 from pathlib import Path, PurePosixPath
 
 import obstore as obs
+from rasterio.vrt import WarpedVRT
 
 from resample_aws_imagery import (
     AWS_REGION,
@@ -85,6 +84,9 @@ class VrtBuilder:
 
     def create_vrt(self) -> Path:
         """Create a georeferenced VRT mosaic from source rasters."""
+        import rasterio
+        from rasterio.vrt import build_vrt
+        
         if self.is_local:
             rasters = self.find_rasters_local()
         else:
@@ -108,32 +110,14 @@ class VrtBuilder:
         print(f"\nCreating VRT file: {self.output_path}")
 
         try:
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                encoding="utf-8",
-                suffix=".txt",
-                delete=False,
-            ) as source_list:
-                source_list.write("\n".join(rasters))
-                source_list_path = Path(source_list.name)
-
-            try:
-                subprocess.run(
-                    [
-                        "gdalbuildvrt",
-                        "-srcnodata",
-                        str(self.no_data),
-                        "-vrtnodata",
-                        str(self.no_data),
-                        "-input_file_list",
-                        str(source_list_path),
-                        str(self.output_path),
-                    ],
-                    check=True,
-                )
-            finally:
-                source_list_path.unlink(missing_ok=True)
-        except (OSError, subprocess.CalledProcessError) as error:
+            vrt = build_vrt(
+                rasters,
+                src_nodata=self.no_data,
+                vrt_nodata=self.no_data,
+            )
+            with rasterio.open(self.output_path, 'w', **vrt.profile) as dst:
+                dst.write(vrt.read())
+        except Exception as error:
             raise ValueError(f"Failed to create VRT file: {error}") from error
 
         print("VRT file created successfully")

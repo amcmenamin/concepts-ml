@@ -10,14 +10,14 @@ from create_vrt import VrtBuilder
 # Each entry is a dict with:
 #   - source: Local folder path or S3 prefix
 #   - output: Output VRT file path
-VRT_CONFIGS = [
+VRT_CONFIGS_C = [
     {
         "source": r"C:\Data\clay\wellington\imagery\wellington\hutt-city_2025_0.075m\rgb\2193",
         "output": r"C:\Data\clay\wellington\imagery\wellington\hutt-city_2025_0.075m\rgb\2193\hutt-city_2025_0.075m.vrt",
     },
     {
-            "source": r"C:\Data\clay\wellington\imagery\wellington\hutt-city_2021_0.075m\rgb\2193",
-            "output": r"C:\Data\clay\wellington\imagery\wellington\hutt-city_2021_0.075m\rgb\2193\hutt-city_2025_0.075m.vrt",
+        "source": r"C:\Data\clay\wellington\imagery\wellington\hutt-city_2021_0.075m\rgb\2193",
+        "output": r"C:\Data\clay\wellington\imagery\wellington\hutt-city_2021_0.075m\rgb\2193\hutt-city_2021_0.075m.vrt",
     },
     # Add more VRT configs as needed:
     # {
@@ -26,6 +26,23 @@ VRT_CONFIGS = [
     # },
 ]
 
+VRT_CONFIGS_AWS = [
+    {
+        "source": "/home/sagemaker-user/concepts-ml/clay-trial/data/nz_imagery/hutt-city_2021_0.075m",
+        "output": "/home/sagemaker-user/concepts-ml/clay-trial/data/nz_imagery/hutt-city_2021_0.075m/hutt-city_2021_0.075m.vrt",
+    },
+    {
+        "source": "/home/sagemaker-user/concepts-ml/clay-trial/data/nz_imagery/hutt-city_2025_0.075m",
+        "output": "/home/sagemaker-user/concepts-ml/clay-trial/data/nz_imagery/hutt-city_2025_0.075m/hutt-city_2025_0.075m.vrt",
+    },
+    # Add more VRT configs as needed:
+    # {
+    #     "source": "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193",
+    #     "output": r"C:\Data\clay\wellington\hutt-city_2025_0.075m.vrt",
+    # },
+]
+
+VRT_CONFIGS = VRT_CONFIGS_AWS
 
 def main() -> None:
     start_time = time.perf_counter()
