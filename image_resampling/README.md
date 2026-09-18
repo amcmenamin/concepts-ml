@@ -6,6 +6,8 @@ default) or copy the raw source bytes, then write the result to Amazon S3 or a
 local directory. Resampled outputs preserve the input raster CRS; inputs without
 a CRS remain unset and produce a warning in the log.
 
+Note: To review via STAC browser go to: https://browser.moregeo.it/external/nz-imagery.s3.ap-southeast-2.amazonaws.com/catalog.json
+
 ## Setup
 
 From the repository root, install the project dependencies:
@@ -56,6 +58,7 @@ python image_resampling/resample_aws_imagery.py PATH [OPTIONS]
 
 Processing defaults can be overridden without editing the script:
 
+**Windows:**
 ```powershell
 uv run python image_resampling/resample_aws_imagery.py `
   "wellington/carterton_2021_0.075m/rgb/2193/BP34_500_044060.tiff" `
@@ -63,6 +66,17 @@ uv run python image_resampling/resample_aws_imagery.py `
   --target-resolution 0.5 `
   --source-bucket nz-imagery `
   --aws-region ap-southeast-2 `
+  --default-log-file aerial-resampling.log
+```
+
+**Linux/macOS:**
+```bash
+uv run python image_resampling/resample_aws_imagery.py \
+  "wellington/carterton_2021_0.075m/rgb/2193/BP34_500_044060.tiff" \
+  --output "/data/clay/wellington/imagery" \
+  --target-resolution 0.5 \
+  --source-bucket nz-imagery \
+  --aws-region ap-southeast-2 \
   --default-log-file aerial-resampling.log
 ```
 
@@ -77,12 +91,22 @@ the log is written incrementally as a local file.
 
 Set a different log path with `--log-file`:
 
+**Windows:**
 ```powershell
 uv run python image_resampling/resample_aws_imagery.py `
   "s3://nz-imagery/wellington/carterton_2021_0.075m/rgb/2193/BP34_500_044060.tiff" `
   --raw `
   --output "C:\Data\clay\wellington\imagery" `
   --log-file "C:\Data\clay\wellington\imagery\download.log"
+```
+
+**Linux/macOS:**
+```bash
+uv run python image_resampling/resample_aws_imagery.py \
+  "s3://nz-imagery/wellington/carterton_2021_0.075m/rgb/2193/BP34_500_044060.tiff" \
+  --raw \
+  --output "/data/clay/wellington/imagery" \
+  --log-file "/data/clay/wellington/imagery/download.log"
 ```
 
 With `--list-files`, object URLs remain on standard output so they can be
@@ -95,6 +119,7 @@ Use `--download-file` to copy a single file such as `.json` or `.geojson`
 without invoking Rasterio. The source-relative path is preserved beneath the
 output location.
 
+**Windows:**
 ```powershell
 uv run python image_resampling/resample_aws_imagery.py `
   "s3://nz-imagery/wellington/wellington_2017_0.1m/rgb/2193/capture-area.geojson" `
@@ -102,8 +127,17 @@ uv run python image_resampling/resample_aws_imagery.py `
   --output "C:\Data\clay\wellington\imagery"
 ```
 
+**Linux/macOS:**
+```bash
+uv run python image_resampling/resample_aws_imagery.py \
+  "s3://nz-imagery/wellington/wellington_2017_0.1m/rgb/2193/capture-area.geojson" \
+  --download-file \
+  --output "/data/clay/wellington/imagery"
+```
+
 Public HTTPS URLs work in the same mode:
 
+**Windows:**
 ```powershell
 uv run python image_resampling/resample_aws_imagery.py `
   "https://s3.ap-southeast-2.amazonaws.com/nz-imagery/wellington/wellington_2017_0.1m/rgb/2193/collection.json" `
@@ -111,21 +145,109 @@ uv run python image_resampling/resample_aws_imagery.py `
   --output "C:\Data\clay\wellington\imagery"
 ```
 
+**Linux/macOS:**
+```bash
+uv run python image_resampling/resample_aws_imagery.py \
+  "https://s3.ap-southeast-2.amazonaws.com/nz-imagery/wellington/wellington_2017_0.1m/rgb/2193/collection.json" \
+  --download-file \
+  --output "/data/clay/wellington/imagery"
+```
+
 `--download-file` cannot be combined with `--list-files`, `--all-imagery`, or
 `--raw`.
+
+## Export Capture Areas
+
+`export_capture_areas.py` recursively searches an S3 folder for objects named
+exactly `capture-area.geojson` and downloads each one using the existing
+single-file download process:
+
+**Windows:**
+```powershell
+uv run python image_resampling/export_capture_areas.py `
+  "s3://nz-imagery/wellington" `
+  --output "C:\Data\clay\wellington\capture-areas"
+```
+
+**Linux/macOS:**
+```bash
+uv run python image_resampling/export_capture_areas.py \
+  "s3://nz-imagery/wellington" \
+  --output "/data/clay/wellington/capture-areas"
+```
+
+The source key is preserved beneath the export directory so identically named
+files do not overwrite one another. For example:
+
+```text
+C:\Data\clay\wellington\capture-areas\wellington\hutt-city_2025_0.075m\rgb\2193\capture-area.geojson
+```
+
+After downloading, the script reads every capture-area file beneath the source
+prefix and writes `capture_areas.parquet` in the output directory. Each source
+feature receives attributes derived from its relative folder structure:
+
+| Attribute | Example |
+| --- | --- |
+| `collection` | `hutt-city_2025_0.075m` |
+| `location` | `hutt-city` |
+| `basedate` | `2025` or `2012-2013` |
+| `GSD` | `0.075` |
+| `image_type` | `rgb` |
+| `crs` | `2193` |
+| `s3_path` | `s3://nz-imagery/wellington/.../capture-area.geojson` |
+
+Collection names are parsed from right to left. The final value ending in `m`
+becomes numeric `GSD`, the preceding year or year range becomes the string
+`basedate`, and an optional survey identifier such as `sn11640` is removed from
+the parsed `location`. The unmodified folder name remains in `collection`.
+
+All geometries are converted to the CRS of the first capture-area file before
+they are combined. The output must be an absolute local directory.
+
+To rebuild GeoParquet from files already downloaded beneath the output
+directory, skip S3 listing and downloading:
+
+**Windows:**
+```powershell
+uv run python image_resampling/export_capture_areas.py `
+  "s3://nz-imagery/wellington" `
+  --output "C:\Data\clay\wellington\capture-areas" `
+  --skip-download
+```
+
+**Linux/macOS:**
+```bash
+uv run python image_resampling/export_capture_areas.py \
+  "s3://nz-imagery/wellington" \
+  --output "/data/clay/wellington/capture-areas" \
+  --skip-download
+```
+
+The source may also be a bucket-relative prefix such as `wellington`. Use
+`--geoparquet` to override the output Parquet filename.
 
 ## List Files
 
 List objects using the default S3 URL format:
 
+**Windows:**
 ```powershell
 python image_resampling/resample_aws_imagery.py `
   "s3://nz-imagery/wellington/wellington_2017_0.1m" `
   --list-files
 ```
 
+**Linux/macOS:**
+```bash
+python image_resampling/resample_aws_imagery.py \
+  "s3://nz-imagery/wellington/wellington_2017_0.1m" \
+  --list-files
+```
+
 Print public HTTP URLs instead:
 
+**Windows:**
 ```powershell
 python image_resampling/resample_aws_imagery.py `
   "s3://nz-imagery/wellington/wellington_2017_0.1m" `
@@ -133,12 +255,29 @@ python image_resampling/resample_aws_imagery.py `
   --url-format http
 ```
 
+**Linux/macOS:**
+```bash
+python image_resampling/resample_aws_imagery.py \
+  "s3://nz-imagery/wellington/wellington_2017_0.1m" \
+  --list-files \
+  --url-format http
+```
+
 Print both S3 and HTTP URLs for each object:
 
+**Windows:**
 ```powershell
 python image_resampling/resample_aws_imagery.py `
   "wellington/wellington_2017_0.1m" `
   --list-files `
+  --url-format both
+```
+
+**Linux/macOS:**
+```bash
+python image_resampling/resample_aws_imagery.py \
+  "wellington/wellington_2017_0.1m" \
+  --list-files \
   --url-format both
 ```
 
@@ -327,3 +466,48 @@ uv run python image_resampling/run_process.py
 All files are written beneath `C:\Data\clay\wellington\imagery`, preserving
 their paths relative to the `nz-imagery` bucket. This keeps imagery from
 different years in separate collection directories.
+
+## Create Virtual Raster (VRT) Files
+
+`create_vrt.py` creates a VRT (Virtual Raster) file that references all raster
+files in a folder or S3 prefix. The VRT file acts as a virtual mosaic without
+copying or resampling the underlying data. Supports local paths (Windows/Linux)
+and S3 locations.
+
+**Create VRT from a local folder:**
+
+**Windows:**
+```powershell
+uv run python image_resampling/create_vrt.py `
+  "C:\Data\clay\wellington\imagery\hutt-city_2025_0.075m\rgb\2193" `
+  --output "C:\Data\clay\wellington\imagery\hutt-city_2025_0.075m.vrt"
+```
+
+**Linux/macOS:**
+```bash
+uv run python image_resampling/create_vrt.py \
+  "/data/clay/wellington/imagery/hutt-city_2025_0.075m/rgb/2193" \
+  --output "/data/clay/wellington/imagery/hutt-city_2025_0.075m.vrt"
+```
+
+**Create VRT from S3 source with Windows output:**
+
+```powershell
+uv run python image_resampling/create_vrt.py `
+  "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193" `
+  --output "C:\Data\clay\wellington\hutt-city_vrt\hutt-city_2025_0.075m.vrt"
+```
+
+This discovers all raster files (`.tif`, `.tiff`, `.jp2`, `.png`, etc.) beneath
+the S3 prefix and writes a VRT file to your Windows local directory. The VRT
+file can then be used with GDAL utilities, QGIS, or other GIS software.
+
+**Batch process multiple folders:**
+
+Use `run_create_vrt.py` to generate VRT files for multiple sources:
+
+```powershell
+uv run python image_resampling/run_create_vrt.py
+```
+
+Edit the `VRT_CONFIGS` list in the script to define sources and output paths.

@@ -26,6 +26,69 @@ INPUTS = [
     "s3://nz-imagery/wellington/wellington_2025_0.075m/rgb/2193/BQ32_1000_1101.tiff",
 ]
 
+INPUTS =[
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_1000_0224.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_1000_0124.tiff",
+]
+
+INPUTS = [
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_027025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_027026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_027027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_027028.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_028025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_028026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_028027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_028028.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_029023.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_029024.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_029025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_029026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_029027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_029028.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_030023.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_030024.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_030025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_030026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_030027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_030028.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_031023.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_031024.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_031025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_031026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_031027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2025_0.075m/rgb/2193/BQ32_500_031028.tiff",
+]
+
+INPUTS = [
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_027025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_027026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_027027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_027028.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_028025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_028026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_028027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_028028.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_029023.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_029024.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_029025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_029026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_029027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_029028.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_030023.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_030024.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_030025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_030026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_030027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_030028.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_031023.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_031024.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_031025.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_031026.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_031027.tiff",
+    "s3://nz-imagery/wellington/hutt-city_2021_0.075m/rgb/2193/BQ32_500_031028.tiff",
+]
+
 
 def run_phase(*, raw: bool) -> None:
     phase = "raw download" if raw else f"{TARGET_RESOLUTION:g}m resample"
@@ -42,7 +105,7 @@ def run_phase(*, raw: bool) -> None:
         processor.process()
 
 
-def main() -> None:
+def main(run_raw: bool, run_resample: bool) -> None:
     configure_logging(str(LOG_FILE))
     start_time = datetime.now().astimezone()
     start_counter = time.perf_counter()
@@ -51,8 +114,10 @@ def main() -> None:
     logger.info("Log file: %s", LOG_FILE)
 
     try:
-        run_phase(raw=True)
-        run_phase(raw=False)
+        if run_raw:
+            run_phase(raw=True)
+        if run_resample:
+            run_phase(raw=False)
     except Exception:
         logger.exception("Batch processing failed")
         raise
@@ -65,4 +130,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(run_raw=False, run_resample=True)

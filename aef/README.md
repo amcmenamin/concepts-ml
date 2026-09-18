@@ -19,8 +19,14 @@ Results are written by default to `C:\Data\AEF\wanaka\change_detection`.
 dates using cosine distance. Higher values indicate embeddings whose direction
 has changed more; they are candidate changes, not a classified change type.
 
+**Windows:**
 ```powershell
-.\.venv\Scripts\python.exe .\aef\locate_changes_cosine.py
+.\venv\Scripts\python.exe .\aef\locate_changes_cosine.py
+```
+
+**Linux/macOS:**
+```bash
+./.venv/bin/python ./aef/locate_changes_cosine.py
 ```
 
 Outputs:
@@ -38,8 +44,14 @@ load the full embedding rasters into memory.
 
 Useful options:
 
+**Windows:**
 ```powershell
-.\.venv\Scripts\python.exe .\aef\locate_changes_cosine.py --percentile 98 --block-size 1024
+.\venv\Scripts\python.exe .\aef\locate_changes_cosine.py --percentile 98 --block-size 1024
+```
+
+**Linux/macOS:**
+```bash
+./.venv/bin/python ./aef/locate_changes_cosine.py --percentile 98 --block-size 1024
 ```
 
 Use `--earlier`, `--later`, and `--output-directory` to override the default
@@ -74,9 +86,11 @@ the rasters have matching bands and grids before writing the score and mask.
 Edit the `CHANGES` list in `run_locate_changes_cosine.py` to configure one or
 more comparisons, then run:
 
-```powershell
+```bash
 uv run python aef/run_locate_changes_cosine.py
 ```
+
+This command works on both Windows and Linux/macOS.
 
 Each list entry contains `earlier`, `later`, `output_directory`, `percentile`,
 and `block_size`. Use a unique output directory for each comparison to avoid
@@ -90,8 +104,14 @@ samples 2019 embeddings as a reference distribution, then gives each sampled
 embeddings. Higher scores mean the 2024 embedding is less represented by the
 sampled 2019 distribution.
 
+**Windows:**
 ```powershell
-.\.venv\Scripts\python.exe .\aef\locate_changes_knn_novelty.py
+.\venv\Scripts\python.exe .\aef\locate_changes_knn_novelty.py
+```
+
+**Linux/macOS:**
+```bash
+./.venv/bin/python ./aef/locate_changes_knn_novelty.py
 ```
 
 It writes `knn_novelty_score.tif`. The default `--stride 16` creates a 160 m
