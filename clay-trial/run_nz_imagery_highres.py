@@ -33,6 +33,11 @@ images_2025 = [
     ]
 ]
 
+images_vrt = [
+"/home/sagemaker-user/concepts-ml/clay-trial/data/nz_imagery/hutt-city_2021_0.075m/hutt-city_2021_0.075m.vrt",
+"/home/sagemaker-user/concepts-ml/clay-trial/data/nz_imagery/hutt-city_2025_0.075m/hutt-city_2025_0.075m.vrt"
+]
+
 processor = HighResClayProcessor(
     checkpoint_path="clay-v1.5.ckpt",
     metadata_path="configs/metadata.yaml",
@@ -41,7 +46,7 @@ processor = HighResClayProcessor(
 )
 
 # Choose which dataset to process
-IMAGES_TO_PROCESS = images_2025  # Change to images_2021 or images_2025 as needed
+IMAGES_TO_PROCESS = images_vrt  # Change to images_2021 or images_2025 as needed
 
 for img_path in IMAGES_TO_PROCESS:
     img = Path(img_path)

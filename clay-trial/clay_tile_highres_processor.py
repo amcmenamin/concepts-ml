@@ -221,6 +221,7 @@ class HighResClayProcessor:
 
             output_profile = src.profile.copy()
             output_profile.update({
+                "driver": "GTiff",
                 "count": embedding_dim,
                 "dtype": "float32",
                 "width": n_tiles_x,
