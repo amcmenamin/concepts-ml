@@ -7,13 +7,13 @@ from locate_changes_cosine import CosineChangeDetector
 CHANGES = [
     {
         "earlier": Path(
-            r"C:\Data\AEF\wanaka\2019\xkmgcxnihpzce8az1-0000008192-0000000000.tiff"
+            r"C:\Data\clay\wellington\embeddings\hutt-city_2021_0.075m\BQ32_500_027026_0.3m\embeddings_cls.tiff"
         ),
         "later": Path(
-            r"C:\Data\AEF\wanaka\2024\xd8jjxuf7h0qy40py-0000008192-0000000000.tiff"
+            r"C:\Data\clay\wellington\embeddings\hutt-city_2025_0.075m\BQ32_500_027026_0.3m\embeddings_cls.tiff"
         ),
         "output_directory": Path(
-            r"C:\Data\AEF\wanaka\change_detection\2019_to_2024"
+            r"C:\Data\AEF\hutt-city\change_detection\2021_to_2025"
         ),
         "percentile": 95.0,
         "block_size": 512,
