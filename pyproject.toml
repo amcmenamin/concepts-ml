@@ -20,6 +20,7 @@ dependencies = [
 	"shapely",
 	"stackstac",
 	"torch",
+	"terratorch",
 	"torchvision",
 	"umap-learn",
 ]

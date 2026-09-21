@@ -8,6 +8,7 @@ __pycache__/
 
 # Model checkpoints
 *.ckpt
+*.pt
 
 # Data directories
 **/data/

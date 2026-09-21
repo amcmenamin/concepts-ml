@@ -8,10 +8,12 @@ from __future__ import annotations
 
 import argparse
 import logging
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path, PurePosixPath
 
 import obstore as obs
-from rasterio.vrt import WarpedVRT
 
 from resample_aws_imagery import (
     AWS_REGION,
@@ -84,9 +86,6 @@ class VrtBuilder:
 
     def create_vrt(self) -> Path:
         """Create a georeferenced VRT mosaic from source rasters."""
-        import rasterio
-        from rasterio.vrt import build_vrt
-        
         if self.is_local:
             rasters = self.find_rasters_local()
         else:
@@ -109,16 +108,42 @@ class VrtBuilder:
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"\nCreating VRT file: {self.output_path}")
 
-        try:
-            vrt = build_vrt(
-                rasters,
-                src_nodata=self.no_data,
-                vrt_nodata=self.no_data,
+        gdalbuildvrt = shutil.which("gdalbuildvrt")
+        if gdalbuildvrt is None:
+            raise RuntimeError(
+                "gdalbuildvrt was not found on PATH. Install GDAL or add its "
+                "bin directory to PATH."
             )
-            with rasterio.open(self.output_path, 'w', **vrt.profile) as dst:
-                dst.write(vrt.read())
-        except Exception as error:
-            raise ValueError(f"Failed to create VRT file: {error}") from error
+
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", suffix=".txt", delete=False
+        ) as input_file:
+            input_file.write("\n".join(rasters))
+            input_list_path = Path(input_file.name)
+
+        command = [
+            gdalbuildvrt,
+            "-overwrite",
+            "-input_file_list",
+            str(input_list_path),
+            "-srcnodata",
+            str(self.no_data),
+            "-vrtnodata",
+            str(self.no_data),
+            str(self.output_path),
+        ]
+        try:
+            result = subprocess.run(
+                command,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode != 0:
+                detail = result.stderr.strip() or result.stdout.strip()
+                raise ValueError(f"gdalbuildvrt failed: {detail}")
+        finally:
+            input_list_path.unlink(missing_ok=True)
 
         print("VRT file created successfully")
         return self.output_path
