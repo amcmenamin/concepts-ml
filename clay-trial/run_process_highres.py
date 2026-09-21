@@ -1,6 +1,6 @@
 """Run high-resolution Clay embedding processing on raster images."""
 
-from process_highres import HighResClayProcessor
+from clay_tile_highres_processor import HighResClayProcessor
 
 # Configuration
 CHECKPOINT = "clay-v1.5.ckpt"

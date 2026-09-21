@@ -51,8 +51,6 @@ class HighResClayProcessor:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = None
         self.metadata = None
-        self.platform = "linz-nir"
-        self.band_names = ["red", "green", "blue", "nir"]
 
     def load_model(self) -> None:
         """Load Clay model and metadata."""
@@ -72,12 +70,21 @@ class HighResClayProcessor:
         self.metadata = Box(yaml.safe_load(open(self.metadata_path)))
         print(f"Model loaded on {self.device}")
 
-    def _get_normalization_params(self) -> tuple[list[float], list[float], list[float], float]:
+    def _get_band_config(self, num_bands: int) -> tuple[str, list[str]]:
+        """Get platform and band configuration based on number of bands."""
+        if num_bands == 3:
+            return "linz-rgb", ["red", "green", "blue"]
+        elif num_bands == 4:
+            return "linz-nir", ["red", "green", "blue", "nir"]
+        else:
+            raise ValueError(f"Unsupported number of bands: {num_bands}")
+    
+    def _get_normalization_params(self, platform: str, band_names: list[str]) -> tuple[list[float], list[float], list[float], float]:
         """Get normalization parameters from metadata."""
-        mean = [self.metadata[self.platform].bands.mean[band] for band in self.band_names]
-        std = [self.metadata[self.platform].bands.std[band] for band in self.band_names]
-        waves = [self.metadata[self.platform].bands.wavelength[band] for band in self.band_names]
-        gsd = self.metadata[self.platform].gsd
+        mean = [self.metadata[platform].bands.mean[band] for band in band_names]
+        std = [self.metadata[platform].bands.std[band] for band in band_names]
+        waves = [self.metadata[platform].bands.wavelength[band] for band in band_names]
+        gsd = self.metadata[platform].gsd
         return mean, std, waves, gsd
 
     def _process_tile(
@@ -87,6 +94,7 @@ class HighResClayProcessor:
         lon: float,
         gsd: float,
         waves: list[float],
+        platform: str,
     ) -> np.ndarray:
         """Process a single tile through the model.
 
@@ -106,7 +114,7 @@ class HighResClayProcessor:
         lon_rad = lon * np.pi / 180
 
         datacube = {
-            "platform": self.platform,
+            "platform": platform,
             "time": torch.tensor(
                 [[np.sin(week), np.cos(week), np.sin(hour), np.cos(hour)]],
                 dtype=torch.float32,
@@ -152,14 +160,18 @@ class HighResClayProcessor:
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        mean, std, waves, gsd = self._get_normalization_params()
-
         with rasterio.open(input_path) as src:
+            num_bands = src.count
             height, width = src.height, src.width
-            print(f"Image size: {width}x{height}")
+            print(f"\nProcessing: {input_path.name}")
+            print(f"Image size: {width}x{height}, Bands: {num_bands}")
+            
+            platform, band_names = self._get_band_config(num_bands)
+            mean, std, waves, gsd = self._get_normalization_params(platform, band_names)
+            print(f"Platform: {platform}, Bands: {band_names}")
 
-            n_tiles_x = (width - self.tile_size) // self.stride + 1
-            n_tiles_y = (height - self.tile_size) // self.stride + 1
+            n_tiles_x = (width + self.stride - 1) // self.stride
+            n_tiles_y = (height + self.stride - 1) // self.stride
             print(f"Processing {n_tiles_x}x{n_tiles_y} = {n_tiles_x * n_tiles_y} overlapping tiles")
             print(f"Output resolution: {self.stride * 0.075:.1f}m")
 
@@ -175,8 +187,19 @@ class HighResClayProcessor:
 
                     start_x = tx * self.stride
                     start_y = ty * self.stride
-                    window = Window(start_x, start_y, self.tile_size, self.tile_size)
-                    tile_data = src.read([1, 2, 3], window=window).astype(np.float32)
+                    
+                    # Create tile with padding if it extends beyond image bounds
+                    tile_data = np.zeros((num_bands, self.tile_size, self.tile_size), dtype=np.float32)
+                    
+                    # Calculate actual read window (clipped to image bounds)
+                    read_width = min(self.tile_size, width - start_x)
+                    read_height = min(self.tile_size, height - start_y)
+                    
+                    if read_width > 0 and read_height > 0:
+                        window = Window(start_x, start_y, read_width, read_height)
+                        tile_data[:, :read_height, :read_width] = src.read(
+                            list(range(1, num_bands + 1)), window=window
+                        ).astype(np.float32)
 
                     tile_tensor = torch.from_numpy(tile_data)
                     for i, (m, s) in enumerate(zip(mean, std)):
@@ -186,7 +209,7 @@ class HighResClayProcessor:
                     center_y = start_y + self.tile_size / 2
                     lon, lat = src.xy(center_y, center_x)
 
-                    embedding = self._process_tile(tile_tensor, lat, lon, gsd, waves)
+                    embedding = self._process_tile(tile_tensor, lat, lon, gsd, waves, platform)
 
                     if embeddings_map is None:
                         embedding_dim = embedding.shape[1]

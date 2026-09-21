@@ -102,8 +102,8 @@ class ClayTileProcessor:
             platform, band_names, mean, std, waves, gsd = self._get_band_config(num_bands)
             print(f"Platform: {platform}, Bands: {band_names}")
             
-            n_tiles_x = width // self.tile_size
-            n_tiles_y = height // self.tile_size
+            n_tiles_x = (width + self.tile_size - 1) // self.tile_size
+            n_tiles_y = (height + self.tile_size - 1) // self.tile_size
             total_tiles = n_tiles_x * n_tiles_y
             print(f"Processing {n_tiles_x}x{n_tiles_y} = {total_tiles} tiles")
             print(f"Embedding mode: {self.embedding_mode}")
@@ -119,10 +119,22 @@ class ClayTileProcessor:
                     if tile_count % 10 == 0:
                         print(f"Processing tile {tile_count}/{total_tiles}")
                     
-                    # Read tile
-                    window = Window(tx * self.tile_size, ty * self.tile_size, 
-                                  self.tile_size, self.tile_size)
-                    tile_data = src.read(list(range(1, num_bands + 1)), window=window).astype(np.float32)
+                    # Read tile with padding if it extends beyond image bounds
+                    start_x = tx * self.tile_size
+                    start_y = ty * self.tile_size
+                    
+                    # Create tile with padding
+                    tile_data = np.zeros((num_bands, self.tile_size, self.tile_size), dtype=np.float32)
+                    
+                    # Calculate actual read window (clipped to image bounds)
+                    read_width = min(self.tile_size, width - start_x)
+                    read_height = min(self.tile_size, height - start_y)
+                    
+                    if read_width > 0 and read_height > 0:
+                        window = Window(start_x, start_y, read_width, read_height)
+                        tile_data[:, :read_height, :read_width] = src.read(
+                            list(range(1, num_bands + 1)), window=window
+                        ).astype(np.float32)
                     
                     # Normalize
                     tile_tensor = torch.from_numpy(tile_data)
