@@ -23,4 +23,6 @@ dependencies = [
 	"terratorch",
 	"torchvision",
 	"umap-learn",
+	"segment-anything @ git+https://github.com/facebookresearch/segment-anything.git",
+    "ultralytics>=8.4.33",
 ]
