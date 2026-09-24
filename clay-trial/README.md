@@ -23,13 +23,13 @@ The project declares the Clay model package from its Git repository. Download or
 **Windows:**
 ```powershell
 Set-Location .\clay-trial
-..\venv\Scripts\python.exe .\process_model_nz_tiled.py
+uv run python process_model_nz_tiled.py
 ```
 
 **Linux/macOS:**
 ```bash
 cd ./clay-trial
-../.venv/bin/python ./process_model_nz_tiled.py
+uv run python process_model_nz_tiled.py
 ```
 
 `EMBEDDING_MODE = "patches"` writes spatially detailed patch embeddings; `"cls"` writes one embedding per 256-pixel source tile. The output is a multi-band GeoTIFF, normally `data/<tile-name>/embeddings_tiled.tif`.
@@ -38,16 +38,16 @@ cd ./clay-trial
 
 ## Analysis
 
-Use `analyse_run.py` to run one analysis or all of them against an embedding GeoTIFF:
+Use `run_analyse.py` to run one analysis or all of them against an embedding GeoTIFF:
 
 **Windows:**
 ```powershell
-..\venv\Scripts\python.exe .\analyse_run.py --path .\data\<tile-name>\embeddings_tiled.tif --analysis all
+uv run python clay-trial/run_analyse.py --path clay-trial/data/<tile-name>/embeddings_tiled.tif --analysis all
 ```
 
 **Linux/macOS:**
 ```bash
-../.venv/bin/python ./analyse_run.py --path ./data/<tile-name>/embeddings_tiled.tif --analysis all
+uv run python clay-trial/run_analyse.py --path clay-trial/data/<tile-name>/embeddings_tiled.tif --analysis all
 ```
 
 Supported analyses are:
@@ -67,24 +67,24 @@ Example command from the repository root using the specific TIFF you provided:
 
 **Windows:**
 ```powershell
-.\venv\Scripts\python.exe .\clay-trial\viz_example.py "C:\Data\AEF\wanaka\2024\d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --dimensions 0,1,2,3,4 --output-dir "C:\Data\AEF\wanaka\2024\viz"
+uv run python clay-trial/viz_example.py "C:\Data\AEF\wanaka\2024\d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --dimensions 0,1,2,3,4 --output-dir "C:\Data\AEF\wanaka\2024\viz"
 ```
 
 **Linux/macOS:**
 ```bash
-./.venv/bin/python ./clay-trial/viz_example.py "/data/aef/wanaka/2024/d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --dimensions 0,1,2,3,4 --output-dir "/data/aef/wanaka/2024/viz"
+uv run python clay-trial/viz_example.py "/data/aef/wanaka/2024/d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --dimensions 0,1,2,3,4 --output-dir "/data/aef/wanaka/2024/viz"
 ```
 
 This plots the first five embedding bands into one or more PNG pages. If you want every Nth band instead of an explicit list, use `--step`:
 
 **Windows:**
 ```powershell
-.\venv\Scripts\python.exe .\clay-trial\viz_example.py "C:\Data\AEF\wanaka\2024\d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --step 10 --output-dir "C:\Data\AEF\wanaka\2024\viz"
+uv run python clay-trial/viz_example.py "C:\Data\AEF\wanaka\2024\d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --step 10 --output-dir "C:\Data\AEF\wanaka\2024\viz"
 ```
 
 **Linux/macOS:**
 ```bash
-./.venv/bin/python ./clay-trial/viz_example.py "/data/aef/wanaka/2024/d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --step 10 --output-dir "/data/aef/wanaka/2024/viz"
+uv run python clay-trial/viz_example.py "/data/aef/wanaka/2024/d8jjxuf7h0qy40py-0000008192-0000000000.tiff" --step 10 --output-dir "/data/aef/wanaka/2024/viz"
 ```
 
 The script writes the PNGs beside the input TIFF by default, or to the directory passed via `--output-dir`.

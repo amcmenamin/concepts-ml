@@ -123,7 +123,7 @@ have matching dimensions and transforms before comparing corresponding cells.
 Run all available exploratory analyses on each output. For example:
 
 ```powershell
-..\.venv\Scripts\python.exe .\analyse_run.py `
+..\.venv\Scripts\python.exe .\run_analyse.py `
   --path .\data\BQ32_500_021001_0.3m\embeddings_tiled.tif `
   --analysis all `
   --n-clusters 20
@@ -163,7 +163,7 @@ cosine similarity of every other cell to that reference. It writes
 Choose the same `--ref-row` and `--ref-col` in both members of an aligned pair:
 
 ```powershell
-..\.venv\Scripts\python.exe .\analyse_run.py `
+..\.venv\Scripts\python.exe .\run_analyse.py `
   --path .\data\BQ32_500_021001_0.3m\embeddings_tiled.tif `
   --analysis similarity `
   --ref-row 100 `
